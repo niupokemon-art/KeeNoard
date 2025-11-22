@@ -52,7 +52,7 @@ Or, simply flash uf2 in "uf2Examples" folder by changing rp2040 zero in dfu mode
 
 ## Licenses
 
-matrix.c and other qmk-related things follows GNU GPL license.
+matrix.c and keymaps follows GNU GPL 2.0 license.
 
 other codes follows MIT license.
 
