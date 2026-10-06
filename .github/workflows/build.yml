@@ -1,0 +1,44 @@
+name: Build Vial Firmware with KeyPeek
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli:latest
+    steps:
+      - name: Checkout Vial-QMK
+        uses: actions/checkout@v4
+        with:
+          repository: vial-kb/vial-qmk
+          submodules: recursive
+          path: vial-qmk
+
+      - name: Checkout Keyboard Repo
+        uses: actions/checkout@v4
+        with:
+          path: my-keyboard
+
+      - name: Add KeyPeek Module & Copy Files
+        run: |
+          cd vial-qmk
+          mkdir -p modules
+          git clone --recursive https://github.com/srwi/qmk-modules.git modules/srwi
+          cp -r ../my-keyboard/firmware/keenoard keyboards/
+
+      - name: Compile Left & Right Firmware
+        run: |
+          cd vial-qmk
+          qmk compile -kb keenoard -km leftboard_vial
+          qmk compile -kb keenoard -km rightboard_vial
+
+      - name: Upload UF2 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: keenoard-keypeek-uf2
+          path: |
+            vial-qmk/*.uf2
+            vial-qmk/*.bin
+            vial-qmk/*.hex
