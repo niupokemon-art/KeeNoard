@@ -21,22 +21,26 @@ jobs:
         with:
           path: my-keyboard
 
-      - name: Add KeyPeek Module & Fix Function Declaration
+      - name: Add KeyPeek Module & Fix Compilation
         run: |
           cd vial-qmk
           mkdir -p modules
           git clone --recursive https://github.com/srwi/qmk-modules.git modules/srwi
-          
-          # 在 keypeek_layer_notify.c 顶部补充函数声明并放宽警告限制
-          sed -i '1i\void raw_hid_receive_user(uint8_t *data, uint8_t length);' modules/srwi/keypeek_layer_notify/keypeek_layer_notify.c
-          
+
+          # 拷贝键盘源码
           cp -r ../my-keyboard/firmware/keenoard keyboards/
+
+          # 1. 在 keypeek 源码顶部包含 raw_hid.h 头文件以提供函数声明
+          sed -i '1i\#include "raw_hid.h"' modules/srwi/keypeek_layer_notify/keypeek_layer_notify.c
+
+          # 2. 在键盘的 rules.mk 中加入忽略隐式函数声明错误的参数（双重保险）
+          echo 'EXTRAFLAGS += -Wno-error=implicit-function-declaration' >> keyboards/keenoard/rules.mk
 
       - name: Compile Left & Right Firmware
         run: |
           cd vial-qmk
-          qmk compile -kb keenoard -km leftboard_vial EXTRAFLAGS="-Wno-error=implicit-function-declaration"
-          qmk compile -kb keenoard -km rightboard_vial EXTRAFLAGS="-Wno-error=implicit-function-declaration"
+          qmk compile -kb keenoard -km leftboard_vial
+          qmk compile -kb keenoard -km rightboard_vial
 
       - name: Upload UF2 Artifact
         uses: actions/upload-artifact@v4
