@@ -11,6 +11,9 @@
         "pid": "0x0000",
         "vid": "0xF00D"
     },
+    "modules": [
+        "srwi/keypeek_layer_notify"
+    ],
     "features" : {
         "bootmagic": true,
         "command": false,
